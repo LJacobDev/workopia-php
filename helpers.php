@@ -46,3 +46,28 @@
         echo "Partial \"{$name}\" not found";
     }
   }
+
+
+
+  /**
+   * Inspect a value(s)
+   * 
+   * @param mixed $value
+   * @return void
+   */
+  function inspect($value){
+    echo '<pre>';
+    var_dump($value);
+    echo '</pre>';
+  }
+
+    /**
+   * Inspect a value(s) and then stop script
+   * 
+   * @param mixed $value
+   * @return void
+   */
+  function inspectAndDie($value){
+    inspect($value);
+    die();
+  }

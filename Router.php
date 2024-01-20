@@ -9,7 +9,14 @@ class Router{
     //otherwise it will produce a 404 http response code and load the 404 error page
     protected $routes = [];
 
-
+    /**
+     * Add a route to the list of expected routes
+     *
+     * @param string $method
+     * @param string $uri
+     * @param string $controller
+     * @return void
+     */
     public function registerRoutes($method, $uri, $controller) {
 
         $this->routes[] = [

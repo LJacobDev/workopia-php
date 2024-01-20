@@ -16,15 +16,18 @@ class Router{
      *
      * @param string $method
      * @param string $uri
-     * @param string $controller
+     * @param string $action
      * @return void
      */
-    public function registerRoutes($method, $uri, $controller) {
+    public function registerRoutes($method, $uri, $action) {
+
+        list($controller, $controllerMethod) = explode('@', $action);
 
         $this->routes[] = [
             'method' => $method,
             'uri' => $uri,
-            'controller' => $controller
+            'controller' => $controller,
+            'controllerMethod' => $controllerMethod,
         ];
 
     }
@@ -108,7 +111,23 @@ class Router{
         //if the requested uri and method exist in the predefined possible routes then run its controller
         foreach($this->routes as $route) {
             if ($route['uri'] === $uri && $route['method'] === $method) {
-                require basePath('App/' . $route['controller']);
+                
+                //extract the controller and controller method
+                //these controllers are all known to be in the App\Controllers\ namespace
+                $controller = 'App\\Controllers\\' . $route['controller'];
+                $controllerMethod = $route['controllerMethod'];
+
+                //so now this holds something like HomeController and index in those variables
+
+                //Instantiate this controller class and call this method on it
+                //this 'new $controller' holds it like a variable
+                //it might be really instantiating 'new HomeController()' class here
+                $controllerInstance = new $controller();
+
+                //this runs something such as:
+                //HomeController->index() method
+                $controllerInstance->$controllerMethod();
+
                 return;
             }
         }

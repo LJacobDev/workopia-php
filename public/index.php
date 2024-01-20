@@ -2,9 +2,18 @@
 
 require '../helpers.php';   //this brings in the loadView() function
 
-require basePath('Framework/Router.php');
-require basePath('Framework/Database.php');
+//require basePath('Framework/Router.php');
+//require basePath('Framework/Database.php');
 
+//custom autoloader using spl_autoload
+//should find all files in Framework/ that have 
+//file names which match class definitions inside of them
+spl_autoload_register(function ($class) {
+    $path = basePath('Framework/' . $class . '.php');
+    if (file_exists($path)) {
+        require $path;
+    }
+});
 
 
 $router = new Router();

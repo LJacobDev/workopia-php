@@ -19,14 +19,19 @@
   * @param string $name
   * @return void
   */
-  function loadView($name){
+  function loadView($name, $data = []){
     
     $viewPath = basePath("Views/{$name}.view.php");
 
     if(file_exists($viewPath)){
-        require $viewPath;
+      
+      //this will take any variables in the array and make them available here
+      extract($data); //confirmed that commenting out this line results in 'undefined' error
+
+      //now the file at viewPath will have these extracted variables available to it
+      require $viewPath;
     } else {
-        echo "View \"{$name}\" not found";
+      echo "View \"{$name}\" not found";
     }
   }
  
@@ -70,4 +75,15 @@
   function inspectAndDie($value){
     inspect($value);
     die();
+  }
+
+
+  /**
+   * Format salary
+   * 
+   * @param string $salary
+   * @return string Formatted Salary
+   */
+  function formatSalary($salary) {
+    return '$' . number_format((float)$salary);
   }

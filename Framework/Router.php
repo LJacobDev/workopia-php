@@ -1,5 +1,7 @@
 <?php
 
+namespace Framework;
+
 class Router{
 
     //this holds the possible routes to handle and they are given at runtime

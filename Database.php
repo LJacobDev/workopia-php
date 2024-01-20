@@ -30,14 +30,22 @@ class Database {
      * Query the database
      *
      * @param string $query
+     * @param mixed $params
      * @return PDOStatement
      * @throws PDOException
      */
-    public function query($query) {
+    public function query($query, $params = []) {
         try{
-            //at this moment no placeholders are used because no user input is being handled yet
+
             $stmt = $this->conn->prepare($query);   
+            
+            //Bind any named params given by the calling context
+            foreach($params as $param => $value) {
+                $stmt->bindValue(':' . $param, $value);
+            }
+
             $stmt->execute();
+            
             return $stmt;
         } 
         catch (PDOException $e) {

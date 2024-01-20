@@ -4,16 +4,10 @@
     //inspect($listings);
 
     loadPartial('head');
-    //require basePath('Views/partials/head.php'); //this draws the DOCTYPE, head, and opening body tags
-
     loadPartial('navbar');
-    //require basePath('Views/partials/navbar.php'); //this draws the nav bar header
-    
     loadPartial('showcase-search');
-    //require basePath('Views/partials/showcase-search.php'); //this draws the search bar section
-    
     loadPartial('top-banner');
-    // require basePath('Views/partials/top-banner.php'); //this draws the first banner section
+    
 
 ?>
 
@@ -59,7 +53,7 @@
 
               </ul>
 
-              <a href="/listings/<?= $listing->id ?>" class="block w-full text-center px-5 py-2.5 shadow-sm rounded border text-base font-medium text-indigo-700 bg-indigo-100 hover:bg-indigo-200">
+              <a href="/listing?id=<?= $listing->id ?>" class="block w-full text-center px-5 py-2.5 shadow-sm rounded border text-base font-medium text-indigo-700 bg-indigo-100 hover:bg-indigo-200">
                 Details
               </a>
 

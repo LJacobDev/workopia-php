@@ -16,7 +16,7 @@ require basePath('routes.php');
 
 
 //get the current request uri and request method
-$uri = $_SERVER['REQUEST_URI'];
+$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];
 
 //pass these to the router which will send it

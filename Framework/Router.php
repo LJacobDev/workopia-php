@@ -106,7 +106,7 @@ class Router{
         //if the requested uri and method exist in the predefined possible routes then run its controller
         foreach($this->routes as $route) {
             if ($route['uri'] === $uri && $route['method'] === $method) {
-                require basePath($route['controller']);
+                require basePath('App/' . $route['controller']);
                 return;
             }
         }

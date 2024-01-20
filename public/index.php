@@ -2,8 +2,8 @@
 
 require '../helpers.php';   //this brings in the loadView() function
 
-require basePath('Router.php');
-require basePath('Database.php');
+require basePath('Framework/Router.php');
+require basePath('Framework/Database.php');
 
 
 

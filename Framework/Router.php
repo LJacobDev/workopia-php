@@ -2,6 +2,8 @@
 
 namespace Framework;
 
+use App\Controllers\ErrorController;
+
 class Router{
 
     //this holds the possible routes to handle and they are given at runtime
@@ -87,19 +89,6 @@ class Router{
 
 
     /**
-     * Load error page
-     * @param int $httpcode
-     * @return void
-     */
-    public function error($httpCode = 404) {
-
-        http_response_code($httpCode);
-        loadView("error/{$httpCode}"); //this is ignoring the 404.php controller and directly loads 404.view.php
-        exit;
-
-    }
-
-    /**
      * Route the request
      * 
      * @param string $uri
@@ -133,6 +122,6 @@ class Router{
         }
 
         //if no routes were found that match the current request then give a 404
-        $this->error();
+        ErrorController::notFound();
     }
 }

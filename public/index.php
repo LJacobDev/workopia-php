@@ -2,6 +2,10 @@
 
 require '../helpers.php';   //this brings in the loadView() function
 
+require basePath('Database.php');
+$config = require basePath('config/db.php');
+
+$db = new Database($config);
 
 require basePath('Router.php');
 

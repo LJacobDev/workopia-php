@@ -2,6 +2,11 @@
 
 class Router{
 
+    //this holds the possible routes to handle and they are given at runtime
+    //by having this class' methods to add them in
+    //the router will look through these and compare them to what is currently incoming
+    //if it sees a match for a method and uri it is expecting, it will send it to that controller
+    //otherwise it will produce a 404 http response code and load the 404 error page
     protected $routes = [];
 
 
@@ -17,7 +22,7 @@ class Router{
 
 
     /**
-     * Add a GET route
+     * Add a GET route to routes collection
      * 
      * @param string $uri
      * @param string $controller
@@ -30,7 +35,7 @@ class Router{
     }
 
      /**
-     * Add a POST route
+     * Add a POST route to routes collection
      * 
      * @param string $uri
      * @param string $controller
@@ -43,7 +48,7 @@ class Router{
     }
 
      /**
-     * Add a PUT route
+     * Add a PUT route to routes collection
      * 
      * @param string $uri
      * @param string $controller
@@ -56,7 +61,7 @@ class Router{
     }
 
      /**
-     * Add a DELETE route
+     * Add a DELETE route to routes collection
      * 
      * @param string $uri
      * @param string $controller

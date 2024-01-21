@@ -99,12 +99,20 @@ class Router{
 
         $requestMethod = $_SERVER['REQUEST_METHOD'];
 
-            //trim off any / forward slashes at beginning or end
-            //then split the current uri into segments delimited by /
-            $uriSegments = explode('/', trim($uri,'/'));
+        if ($requestMethod === 'POST' && isset($_POST['_method'])){
 
-            //inspect($uriSegments);
-            //inspect($uriSegments[1]);
+            //this can now hold DELETE or PUT or other custom request methods
+            $requestMethod = $_POST['_method'];
+
+        }
+
+
+        //trim off any / forward slashes at beginning or end
+        //then split the current uri into segments delimited by /
+        $uriSegments = explode('/', trim($uri,'/'));
+
+        //inspect($uriSegments);
+        //inspect($uriSegments[1]);
 
         //if the requested uri and method exist in the predefined possible routes then run its controller
         foreach($this->routes as $route) {

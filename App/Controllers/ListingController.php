@@ -33,6 +33,7 @@ class ListingController {
     /**
      * Show a specific listing
      *
+     * @param array $params
      * @return void
      */
     public function show($params = []) {
@@ -181,6 +182,42 @@ class ListingController {
             redirect('/listings');
         }
 
+    }
+
+
+    /**
+     * Delete a listing
+     * 
+     * @param array $params
+     * @return void
+     */
+    public function destroy($params) {
+
+        //prepare a sql query with placeholder for id of listing to delete from listings
+
+        //in this case $params should be ['id' => $id]
+
+        $id = $params['id'];
+
+        $query = "SELECT * FROM listings WHERE id = :id";
+
+        //here as an explicit step to show intention
+        $params = ['id' => $id];
+
+
+        //check for listing first before deleting it
+        $listingCheck = $this->db->query($query, $params)->fetch();
+
+        if (!$listingCheck) {
+            ErrorController::notFound('Listing not found');
+            return;
+        }
+
+        //Delete listing if it was found
+        $this->db->query("DELETE FROM listings WHERE id = :id", $params);
+
+
+        redirect('/listings');
     }
 
 }

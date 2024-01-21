@@ -209,9 +209,9 @@ class ListingController {
 
 
         //check for listing first before deleting it
-        $listingCheck = $this->db->query($query, $params)->fetch();
+        $listing = $this->db->query($query, $params)->fetch();
 
-        if (!$listingCheck) {
+        if (!$listing) {
             ErrorController::notFound('Listing not found');
             return;
         }
@@ -264,4 +264,102 @@ class ListingController {
     }
 
 
+    /**
+     * Update an existing listing 
+     * 
+     * @param array $params
+     * @return void
+     */
+    public function update($params) {
+
+        
+        //first it checks that the listing exists
+        $id = $params['id'];
+
+        $query = "SELECT * FROM listings WHERE id = :id";
+
+        //here as an explicit overwrite step to show intention
+        $params = ['id' => $id];
+
+        //check for listing first before updating it
+        $listing = $this->db->query($query, $params)->fetch();
+
+        if (!$listing) {
+            ErrorController::notFound('Listing not found');
+            return;
+        }
+        
+
+        //now it has to get the values from $_POST but only the exact ones wanted
+        $allowedFields = ['title', 'description', 'salary', 'tags', 'company', 'address', 'city', 'state', 'phone', 'email', 'requirements', 'benefits'];
+
+        $allowedFields = array_flip($allowedFields);
+
+        //make an array from the values in $_POST, only where 
+        //they have keys that are the same as the keys in $allowedFields
+        $updateValues = array_intersect_key($_POST, $allowedFields);
+
+
+        $updateValues = array_map('sanitize', $updateValues);
+
+
+
+        $requiredFields = ['title', 'description', 'salary', 'city', 'state', 'email'];
+
+        $errors = [];
+
+        foreach($requiredFields as $field){
+            if(empty($updateValues[$field]) || !Validation::string($updateValues[$field])) {
+                $errors[$field] = ucfirst($field) . ' is required';
+            }
+        }
+
+
+        if (!empty($errors)) {
+
+            //Reload view with errors listed
+            loadView('listings/edit', [
+                //this gives a list of error messages for the form to check for and display
+                'errors' => $errors,
+                //passing the listing object back into edit like this is compatible with the 
+                //page but loses any valid updated edits which will have to be retyped
+                //however this case will only arise if a user deletes a required field that
+                //once was already correctly placed in the original creation and tries to save
+                'listing' => $listing   
+            ]);
+            
+
+        } else {
+
+            //Submit update data to database
+
+            $updateFields = [];
+
+            foreach($updateValues as $field => $value) {
+
+                $updateFields[] = "{$field} = :{$field}";
+
+                //convert any empty string value to a null value
+                if ($value === '') {
+                    $updateValues[$field] = null;
+                }
+
+            }
+
+            //now make a SQL UPDATE query with the field names and their :placeholder parts
+            $updateFields = implode(', ', $updateFields);
+
+            $query = "UPDATE listings SET {$updateFields} WHERE id=:id;";
+
+            $updateValues['id'] = $id;
+            
+            $this->db->query($query, $updateValues);
+
+            $_SESSION['success_message'] = "Listing successfully updated";
+
+            redirect('/listings/' . $id);
+            
+        }
+
+    }
 }

@@ -95,31 +95,90 @@ class Router{
      * @param string $method
      * @return void
      */
-    public function route($uri, $method) {
+    public function route($uri) {
+
+        $requestMethod = $_SERVER['REQUEST_METHOD'];
+
+            //trim off any / forward slashes at beginning or end
+            //then split the current uri into segments delimited by /
+            $uriSegments = explode('/', trim($uri,'/'));
+
+            //inspect($uriSegments);
+            //inspect($uriSegments[1]);
 
         //if the requested uri and method exist in the predefined possible routes then run its controller
         foreach($this->routes as $route) {
-            if ($route['uri'] === $uri && $route['method'] === $method) {
+
+            //split the route uri into segments
+            $routeSegments = explode('/', trim( $route['uri'],'/'));
+
+            //  this echoes 1 / true if there is a match
+            //  but it won't work on regex so a more elaborate loop is done
+            //  echo ($uriSegments == $routeSegments) . "<br>";
+
+            
+            if (count($uriSegments) === count($routeSegments) && 
+            strtoupper($requestMethod) === strtoupper($route['method'])) {
                 
-                //extract the controller and controller method
-                //these controllers are all known to be in the App\Controllers\ namespace
-                $controller = 'App\\Controllers\\' . $route['controller'];
-                $controllerMethod = $route['controllerMethod'];
+                $params = [];
+                
+                //match will be assumed true unless inner loop finds unmatching elements
+                //that can't be explained by expected regex detected param values
+                $match = true;
 
-                //so now this holds something like HomeController and index in those variables
+                //now that the method and number of arguments matches,
+                //it will loop through segments and check with regex so listing/1
+                //and listing/2 can be used as matches to a listing/{id} route
+                for($i = 0; $i < count($uriSegments); $i++){
 
-                //Instantiate this controller class and call this method on it
-                //this 'new $controller' holds it like a variable
-                //it might be really instantiating 'new HomeController()' class here
-                $controllerInstance = new $controller();
+                    //if a mismatch is found between $routeSegments[i] and $uriSegments[i]
+                    //then check if routeSegments[$i] has curly brackets in it using regex
+                    //if it is not one of those, then match=false and break out of for loop
+                    //But if it does have { } in it, it is expecting a uri parameter
 
-                //this runs something such as:
-                //HomeController->index() method
-                $controllerInstance->$controllerMethod();
+                    if ($uriSegments[$i] !== $routeSegments[$i] && 
+                        !preg_match( '/\{(.+?)\}/', $routeSegments[$i])) {
+                            $match = false;
+                            break;
+                    }
 
-                return;
+                    //if this is still executing then it means a { } param was found
+                    if (preg_match('/\{(.+?)\}/', $routeSegments[$i], $matches)) {
+
+                        //inspect($matches);            //shows ["{id}", "id"]
+                        //inspect($uriSegments[$i]);    //shows "2" if writing /listing/2 in browser
+
+                        //params will now hold ['id'=>'2'] for example
+                        $params[$matches[1]] = $uriSegments[$i];
+                    }
+                } // end of for loop
+
+                if ($match) {
+
+                    //extract the controller and controller method
+                    //these controllers are all known to be in the App\Controllers\ namespace
+                    $controller = 'App\\Controllers\\' . $route['controller'];
+                    $controllerMethod = $route['controllerMethod'];
+
+                    //so now this holds something like HomeController and index in those variables
+
+                    //Instantiate this controller class and call this method on it
+                    //this 'new $controller' holds it like a variable
+                    //it might be really instantiating 'new HomeController()' class here
+                    $controllerInstance = new $controller();
+
+                    //this runs something such as
+                    //HomeController->index() method
+                    $controllerInstance->$controllerMethod($params);
+
+                    return;
+
+                }
+
             }
-        }
+
+
+        }   //end of foreach
 
         //if no routes were found that match the current request then give a 404
         ErrorController::notFound();

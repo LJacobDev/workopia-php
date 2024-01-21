@@ -175,7 +175,10 @@ class ListingController {
             //and it will map the values in $newListingData
             //to the placeholders set in the $sqlValues string
             $this->db->query($query, $newListingData);
-            
+
+            //set flash message
+            $_SESSION['success_message'] = "Listing successfully created";
+
             //with the new database entry complete, redirect to listings page
             //but it has to be a redirect Header() method, 
             //as using loadView() on it was causing an error
@@ -215,6 +218,9 @@ class ListingController {
 
         //Delete listing if it was found
         $this->db->query("DELETE FROM listings WHERE id = :id", $params);
+
+        //set flash message
+        $_SESSION['success_message'] = "Listing successfully deleted";
 
 
         redirect('/listings');

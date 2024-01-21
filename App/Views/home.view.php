@@ -47,9 +47,11 @@
                   </span> -->
                 </li>
 
-                <li class="mb-2">
-                  <strong>Tags:</strong> <?= $listing->tags ?>
-                </li>
+                <?php if(!empty($listing->tags)) : ?>
+                  <li class="mb-2">
+                    <strong>Tags:</strong> <?= $listing->tags ?>
+                  </li>
+                <?php endif; ?>
 
               </ul>
 

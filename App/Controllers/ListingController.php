@@ -23,7 +23,7 @@ class ListingController {
      */
     public function index() {
 
-        $listings = $this->db->query("SELECT * FROM listings;")->fetchAll();
+        $listings = $this->db->query("SELECT * FROM listings ORDER BY created_at DESC;")->fetchAll();
 
         loadView('Listings/index', [
             'listings' => $listings
@@ -120,7 +120,7 @@ class ListingController {
         //now validation is done on it to make sure
         //that the required fields are not empty
         //and that they are for sure strings as well
-        $requiredFields = ['title', 'description', 'city', 'state', 'email'];
+        $requiredFields = ['title', 'description', 'salary', 'city', 'state', 'email'];
 
         $errors = [];
 
@@ -144,8 +144,41 @@ class ListingController {
         } else {
 
             //Submit data
-            echo 'Success';
 
+            //build up parts of the SQL query in a dynamic way
+
+            //create a string of fields separated by comma and space to create the INSERT INTO arguments
+            $sqlFields = [];
+
+            //create a string of the placeholder text to put for each field separated by commas and spaces to make the VALUES arguments
+            $sqlValues = [];
+
+            foreach($newListingData as $field => $value) {
+
+                $sqlFields[] = $field;
+                $sqlValues[] = ':' . $field;
+
+                //convert any empty string value to a null value
+                if ($value === '') {
+                    $newListingData[$field] = null;
+                }
+
+            }
+
+            $sqlFields = implode(', ', $sqlFields);
+            $sqlValues = implode(', ', $sqlValues);
+
+            $query = "INSERT INTO listings ({$sqlFields}) VALUES ({$sqlValues});";
+
+            //this query is handed in to the database object
+            //and it will map the values in $newListingData
+            //to the placeholders set in the $sqlValues string
+            $this->db->query($query, $newListingData);
+            
+            //with the new database entry complete, redirect to listings page
+            //but it has to be a redirect Header() method, 
+            //as using loadView() on it was causing an error
+            redirect('/listings');
         }
 
     }

@@ -44,7 +44,7 @@ class UserController {
         $user['city'] = $_POST['city'];
         $user['state'] = $_POST['state'];
         $user['password'] = $_POST['password'];
-        $user['passwordConfirmation'] = $_POST['password_confirmation'];
+        $user['password_confirmation'] = $_POST['password_confirmation'];
 
 
         //make a new array of values that have had special html characters escaped
@@ -66,8 +66,8 @@ class UserController {
             $errors['password'] = "Please enter a password at least 8 characters long";
         }
 
-        if(!Validation::match($user['password'], $user['passwordConfirmation'])) {
-            $errors['passwordConfirmation'] = "Password entries do not match";
+        if(!Validation::match($user['password'], $user['password_confirmation'])) {
+            $errors['password_confirmation'] = "Password entries do not match";
         }
 
 
@@ -81,13 +81,74 @@ class UserController {
             ]);
 
             exit;
+        } 
 
-        } else {
 
-            inspectAndDie('store method');
+        //ensure that there is no other user with the same email address
 
-        }
+        //and if not, add them to the users table in the database
 
+        $query = "SELECT * FROM users WHERE email = :email";
+        $params = [
+            'email' => $user['email']
+        ];
+
+        $emailExistsAlready = $this->db->query($query, $params)->fetch();
+
+        if ($emailExistsAlready) {
+
+            $errors['useremail'] = "That email address is already associated with an existing account";
+            loadView('users/create', [
+
+                'errors' => $errors,
+                'user' => $user
+
+            ]);
+
+            exit;
+        } 
+
+
+
+            //unset the password_confirmation field in $user and it will match the columns in the table
+            unset($user['password_confirmation']);
+
+            //turn the user's password into a hash of that password before storing it
+            $user['password'] = password_hash($user['password'], PASSWORD_DEFAULT);
+
+
+
+            //at this point data is ready to insert
+
+            $userFields = [];
+            $userPlaceholders = [];
+
+
+            foreach($user as $field => $value){
+
+                $userFields[] = $field;
+                $userPlaceholders[] = ':' . $field;
+
+                if($value === ''){
+                    $user[$field] = null;
+                }
+            }
+
+            $userFields = implode(', ', $userFields);
+            $userPlaceholders = implode(', ', $userPlaceholders);
+
+            $query = "INSERT INTO users ({$userFields}) VALUES ({$userPlaceholders});";
+
+
+            //running the query and passing in the user array itself as the 
+            //keys and values for the placeholder prepared params
+            $this->db->query($query, $user);
+
+
+            $_SESSION['success_message'] = "New user successfully created";
+
+
+            redirect('/');
 
 
     }

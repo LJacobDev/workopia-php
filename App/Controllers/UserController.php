@@ -167,6 +167,28 @@ class UserController {
     }
 
 
+
+    /**
+     * Log out user and end session
+     * 
+     * @return void
+     */
+    public function logout() {
+        
+        
+        Session::clearAllAndDestroy();
+        
+        //also clear out session ID cookie
+        $params = session_get_cookie_params();
+
+        //set cookie to empty and to expire 1 year ago
+        setcookie('PHPSESSID', '', time() - 86400, $params['path'], $params['domain']);
+
+        redirect('/');
+    }
+
+
+
      /**
      * Show the login screen
      * 

@@ -3,7 +3,9 @@
 namespace App\Controllers;
 
 use Framework\Database;
+use Framework\Session;
 use Framework\Validation;
+use Framework\OwnershipAuthorization;
 
 class ListingController {
 
@@ -101,9 +103,8 @@ class ListingController {
         //expected keys which can then be validated to be the right kinds of inputs
 
 
-        //this is hard coded to 1 until the authentication is added
-        //and then it can be set to the active user's id
-        $newListingData['user_id'] = 1;
+        //this listing gets associated with the ID of the authenticated user that made it
+        $newListingData['user_id'] = Session::get('user')['id'];
 
 
 
@@ -177,7 +178,7 @@ class ListingController {
             $this->db->query($query, $newListingData);
 
             //set flash message
-            $_SESSION['success_message'] = "Listing successfully created";
+            Session::setFlashMessage('success_message', 'Listing successfully created');
 
             //with the new database entry complete, redirect to listings page
             //but it has to be a redirect Header() method, 
@@ -216,12 +217,18 @@ class ListingController {
             return;
         }
 
+        //make sure that no one can delete this post if they're not the user in userId
+        if(!OwnershipAuthorization::isOwner($listing->user_id)) {
+            Session::setFlashMessage('error_message', 'You are not authorized to delete this listing');
+            return redirect('/listings/' . $listing->id);
+        }
+
+
         //Delete listing if it was found
         $this->db->query("DELETE FROM listings WHERE id = :id", $params);
 
         //set flash message
-        $_SESSION['success_message'] = "Listing successfully deleted";
-
+        Session::setFlashMessage('success_message', 'Listing successfully deleted');
 
         redirect('/listings');
     }
@@ -257,6 +264,12 @@ class ListingController {
             return;
         }
 
+        //make sure that no one can edit this post if they're not the user in userId
+        if(!OwnershipAuthorization::isOwner($listing->user_id)) {
+            Session::setFlashMessage('error_message', 'You are not authorized to edit this listing');
+            return redirect('/listings/' . $listing->id);
+        }
+
 
         loadView('Listings/edit', [
             'listing' => $listing
@@ -287,6 +300,12 @@ class ListingController {
         if (!$listing) {
             ErrorController::notFound('Listing not found');
             return;
+        }
+        
+        //make sure that no one can edit this post if they're not the user in userId
+        if(!OwnershipAuthorization::isOwner($listing->user_id)) {
+            Session::setFlashMessage('error_message', 'You are not authorized to edit this listing');
+            return redirect('/listings/' . $listing->id);
         }
         
 
@@ -355,7 +374,7 @@ class ListingController {
             
             $this->db->query($query, $updateValues);
 
-            $_SESSION['success_message'] = "Listing successfully updated";
+            Session::setFlashMessage('success_message', 'Listing successfully updated');
 
             redirect('/listings/' . $id);
             

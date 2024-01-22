@@ -397,6 +397,11 @@ class ListingController {
         //using the SQL IN operator you can hand a collection of values and see if any are in a field
         //using the SQL LIKE operator you can find things that contain a word, case insensitive
 
+        //this implementation will allow a way to search for things like:
+        //"developer" and "chicago"
+        //or "data" and "NY", 
+        //or even just the keyword or just the location by itself
+        //but it doesn't support multiple comma or space separated keywords, or "city, state" searches
         $query = "SELECT * FROM listings WHERE (title LIKE :keywords OR description LIKE :keywords OR tags LIKE :keywords OR company LIKE :keywords) AND (city LIKE :location OR state LIKE :location);";
 
         $params = [

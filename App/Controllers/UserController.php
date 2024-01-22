@@ -97,7 +97,7 @@ class UserController {
 
         if ($emailExistsAlready) {
 
-            $errors['useremail'] = "That email address is already associated with an existing account";
+            $errors['useremail'] = "That email address is already being used";
             loadView('users/create', [
 
                 'errors' => $errors,
@@ -196,6 +196,116 @@ class UserController {
      */
     public function login(){
         loadView('users/login');
+    }
+
+     /**
+     * Authenticate the user with email and password
+     * 
+     * @return void
+     */
+    public function authenticate(){
+
+        $email = $_POST['email'];
+        $password = $_POST['password'];
+
+        //these two inputs seem to not need to be escaped because they will not be put on display
+        //so passing them through sanitize to remove element tags seems to not be needed this time
+
+
+        $errors = [];
+
+        //validate email
+        if (!Validation::email($email)) {
+            $errors['email'] = 'Please enter a valid email';
+        }
+
+        //validate password length
+        if (!Validation::string($password, 8, 100)) {
+            $errors['password'] = 'Password must be at least 8 characters';
+        }
+
+        //error check before querying database
+        if(!empty($errors)) {
+
+            loadView('users/login', [
+                'errors' => $errors
+                //DO NOT SEND EMAIL TO BE DISPLAYED
+                //because it is not sanitized yet this time
+            ]);
+            
+            exit;
+        }
+
+
+
+
+
+        //now that there are no errors
+        //see if the email exists in the users table
+
+        $query = "SELECT * FROM users WHERE email = :email";
+        $params = [
+            'email' => $email
+        ];
+        
+        $user = $this->db->query($query, $params)->fetch();
+
+
+        //both email and password being wrong should generate 
+        //the same error message, so that it can't be guessed at by people probing it
+        $incorrectEmailPasswordMessage = "Incorrect credentials";
+
+        //error check of whether a user was found
+        if (!$user) {
+            $errors['auth'] = $incorrectEmailPasswordMessage;
+
+            loadView('users/login', [
+                'errors' => $errors
+                //DO NOT SEND EMAIL TO BE DISPLAYED
+                //because it is not sanitized yet this time
+            ]);
+            
+            exit;
+        }
+
+
+
+        //now that a user has been found, check password hash
+        //against the currently entered password
+
+        if (!password_verify($password, $user->password)) {
+
+            $errors['auth'] = $incorrectEmailPasswordMessage;
+
+            loadView('users/login', [
+                'errors' => $errors
+                //DO NOT SEND EMAIL TO BE DISPLAYED
+                //because it is not sanitized yet this time
+            ]);
+            
+            exit;
+        }
+
+        
+        //if no errors then consider authenticated and set a session
+        if(empty($errors)) {
+
+
+            //using 'user' as the session key for this user but something else might be better
+            Session::set('user', [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'city' => $user->city,
+                'state' => $user->state
+            ]);
+            
+
+
+            redirect('/');
+
+        }
+
     }
 
 

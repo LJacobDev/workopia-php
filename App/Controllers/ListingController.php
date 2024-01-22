@@ -381,4 +381,35 @@ class ListingController {
         }
 
     }
+
+    /**
+     * Search listings by keywords, location
+     * 
+     * @param string $keywords
+     * @param string $location
+     * @return void
+     */
+    public function search() {
+
+        $keywords = isset($_GET['keywords']) ? trim($_GET['keywords']) : '';
+        $location = isset($_GET['location']) ? trim($_GET['location']) : '';
+
+        //using the SQL IN operator you can hand a collection of values and see if any are in a field
+        //using the SQL LIKE operator you can find things that contain a word, case insensitive
+
+        $query = "SELECT * FROM listings WHERE (title LIKE :keywords OR description LIKE :keywords OR tags LIKE :keywords OR company LIKE :keywords) AND (city LIKE :location OR state LIKE :location);";
+
+        $params = [
+            'keywords' => "%{$keywords}%",
+            'location' => "%{$location}%"
+        ];
+
+        $listings = $this->db->query($query, $params)->fetchAll();
+
+        loadView('Listings/index', [
+            'listings' => $listings,
+            'keywords' => $keywords,
+            'location' => $location
+        ]);
+    }
 }

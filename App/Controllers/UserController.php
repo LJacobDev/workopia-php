@@ -5,7 +5,7 @@ namespace App\Controllers;
 
 use Framework\Database;
 use Framework\Validation;
-
+use Framework\Session;
 
 class UserController {
 
@@ -145,7 +145,20 @@ class UserController {
             $this->db->query($query, $user);
 
 
-            $_SESSION['success_message'] = "New user successfully created";
+
+            //now a session for the user will be created but the user ID isn't known
+            //however the db->conn property can give a last insert ID which will have it
+            $userID = $this->db->conn->lastInsertId();
+
+            //using 'user' as the session key for this user but something else might be better
+            Session::set('user', [
+                'id' => $userID,
+                'name' => $user['name'],
+                'email' => $user['email'],
+                'city' => $user['city'],
+                'state' => $user['state']
+            ]);
+            
 
 
             redirect('/');

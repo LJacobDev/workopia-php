@@ -1,4 +1,4 @@
-This project was done in order to familiarize myself with the underlying workings frameworks like Laravel, but while using only vanilla PHP to create and understand that functionality from scratch.
+This project was done in order to familiarize myself with the underlying workings of frameworks like Laravel, but while using only vanilla PHP to create and understand that functionality from scratch.
 
 If you would like to run this locally, there are a few important steps to perform:
 

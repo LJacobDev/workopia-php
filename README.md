@@ -13,3 +13,5 @@ If you would like to run this locally, there are a few important steps to perfor
 - The document root needs to be set to the 'public' folder, so if using the PHP built-in server, you could navigate to the main folder of the project, and then run 'php -S localhost:8000 -t public' to properly configure it
 
 This application has the functionality to view job listings, and to register or log in as a user and post new job listings.  A job listing is associated with the user who created it and it can only be edited or deleted by that user.  There is also the ability to search listings that include a specified keyword and/or location.  The main features of this application are not about the UI or presentation but rather the routing, authorization middleware, and other backend functionality.
+
+Created as the result of a course taught by Brad Traversy through Udemy.
